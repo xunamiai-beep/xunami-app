@@ -14,7 +14,7 @@ exports.handler = async function(event, context) {
 
     // Reach into the Netlify vault for your API key
     const API_KEY = process.env.GEMINI_API_KEY;
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
     // Send it to the AI Model
     const response = await fetch(endpoint, {
