@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>API Link Verification (Frontend)</title>
+    <style>
+        body { background: #0B0F19; color: #F8FAFC; font-family: 'Inter', sans-serif; padding: 40px; }
+        .card { background: rgba(255,255,255,0.05); padding: 30px; border-radius: 16px; margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.1); }
+        h1 { margin-bottom: 30px; color: #38bdf8; }
+        input { padding: 12px; width: 400px; margin-bottom: 15px; background: rgba(0,0,0,0.5); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; display: block;}
+        button { padding: 12px 24px; cursor: pointer; background: #38bdf8; border: none; border-radius: 8px; font-weight: bold; color: #000; transition: 0.2s; }
+        button:hover { background: #fff; }
+        pre { background: rgba(0,0,0,0.8); padding: 15px; border-radius: 8px; overflow-x: auto; margin-top: 15px; border: 1px solid rgba(255,255,255,0.05); }
+    </style>
+</head>
+<body>
+    <h1>Phase 2 (Link): Frontend Verification</h1>
+    <p>We are verifying the APIs using pure HTML/JS as requested.</p>
+    
+    <div class="card">
+        <h2>Google Gemini API</h2>
+        <input type="password" id="gemini-key" placeholder="Enter Gemini API Key" />
+        <button onclick="testGemini()">Test Gemini Handshake</button>
+        <pre id="gemini-out">Waiting for test...</pre>
+    </div>
+
+    <div class="card">
+        <h2>Dropbox API</h2>
+        <input type="password" id="dropbox-key" placeholder="Enter Dropbox Access Token" />
+        <button onclick="testDropbox()">Test Dropbox Handshake</button>
+        <pre id="dropbox-out">Waiting for test...</pre>
+    </div>
+
+    <script>
+        async function testGemini() {
+            const key = document.getElementById('gemini-key').value.trim();
+            const out = document.getElementById('gemini-out');
+            if(!key) return out.innerText = 'Error: API Key is missing.';
+            
+            out.innerText = 'Testing connection...';
+            try {
+                const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=' + key, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: "Reply only with 'Handshake successful'" }]}] })
+                });
+                
+                const data = await res.json();
+                if(data.error) throw new Error(data.error.message);
+                
+                const text = data.candidates[0].content.parts[0].text;
+                out.innerText = 'Success: ' + text;
+                out.style.color = '#34d399';
+            } catch(e) {
+                out.innerText = 'Failed: ' + e.message;
+                out.style.color = '#ef4444';
+            }
+        }
+
+        async function testDropbox() {
+            const token = document.getElementById('dropbox-key').value.trim();
+            const out = document.getElementById('dropbox-out');
+            if(!token) return out.innerText = 'Error: Access Token is missing.';
+            
+            out.innerText = 'Testing connection...';
+            try {
+                const res = await fetch('https://api.dropboxapi.com/2/users/get_current_account', {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                
+                const data = await res.json();
+                if(data.error_summary) throw new Error(data.error_summary);
+                
+                out.innerText = 'Success: Connected to Dropbox account -> ' + data.name.display_name;
+                out.style.color = '#34d399';
+            } catch(e) {
+                out.innerText = 'Failed: ' + e.message;
+                out.style.color = '#ef4444';
+            }
+        }
+    </script>
+</body>
+</html>

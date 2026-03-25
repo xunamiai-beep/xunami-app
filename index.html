@@ -8,23 +8,35 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap');
 
         :root {
-            --bg-deep: #0B0F19; --text-main: #F8FAFC; --text-muted: #94A3B8;
-            --glass-bg: rgba(255, 255, 255, 0.02); --glass-border: rgba(255, 255, 255, 0.06);
-            --accent-glow: rgba(56, 189, 248, 0.12); --accent-glow-2: rgba(139, 92, 246, 0.12);
-            --accent: #38bdf8; --accent-gradient: linear-gradient(135deg, #38bdf8, #8b5cf6);
-            --success: #34d399; --warning: #fbbf24; --error: #ef4444;
+            --bg-deep: #0B0F19; 
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --glass-bg: rgba(255, 255, 255, 0.02);
+            --glass-border: rgba(255, 255, 255, 0.06);
+            --accent-glow: rgba(56, 189, 248, 0.12); 
+            --accent-glow-2: rgba(139, 92, 246, 0.12);
+            --accent: #38bdf8;
+            --accent-gradient: linear-gradient(135deg, #38bdf8, #8b5cf6);
+            --success: #34d399;
+            --warning: #fbbf24;
+            --error: #ef4444;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
 
         body {
-            background-color: var(--bg-deep); color: var(--text-main); line-height: 1.6;
-            overflow-x: hidden; min-height: 100vh;
-            background-image: radial-gradient(circle at 15% 30%, var(--accent-glow), transparent 40%),
-                              radial-gradient(circle at 85% 70%, var(--accent-glow-2), transparent 40%);
+            background-color: var(--bg-deep); 
+            color: var(--text-main); 
+            line-height: 1.6;
+            overflow-x: hidden; 
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 15% 30%, var(--accent-glow), transparent 40%),
+                radial-gradient(circle at 85% 70%, var(--accent-glow-2), transparent 40%);
             background-attachment: fixed;
         }
 
+        /* --- GLOBAL ANIMATIONS --- */
         .reveal { opacity: 0; transform: translateY(40px); transition: all 1s cubic-bezier(0.16, 1, 0.3, 1); }
         .reveal.active { opacity: 1; transform: translateY(0); }
 
@@ -32,7 +44,8 @@
         .top-nav {
             position: fixed; top: 0; left: 0; width: 100%; padding: 20px 40px; display: flex;
             justify-content: space-between; align-items: center; background: rgba(11, 15, 25, 0.7);
-            backdrop-filter: blur(20px); border-bottom: 1px solid var(--glass-border); z-index: 2000;
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border); z-index: 2000;
         }
         .nav-logo { font-size: 1.5rem; font-weight: 900; letter-spacing: -1px; cursor: pointer; color: white; }
         .nav-links { display: flex; align-items: center; gap: 30px; }
@@ -51,12 +64,55 @@
         #intro-question { position: absolute; font-size: 4rem; font-weight: 700; text-align: center; letter-spacing: -1px; line-height: 1.1; color: white; z-index: 3; will-change: opacity, transform; text-shadow: 0 10px 30px rgba(0,0,0,0.8); padding: 0 20px; }
         #punchy-text { position: absolute; font-size: 5rem; font-weight: 900; text-align: center; letter-spacing: -2px; line-height: 1.1; opacity: 0; transform: translateY(30px); z-index: 3; will-change: opacity, transform; }
 
-        /* --- TRUST BANNER --- */
-        .trust-banner { border-top: 1px solid var(--glass-border); border-bottom: 1px solid var(--glass-border); padding: 40px 20px; margin-top: -2px; text-align: center; background: rgba(0,0,0,0.2); position: relative; z-index: 10; }
-        .trust-banner p { color: #64748B; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 2px; font-weight: 600; margin-bottom: 30px; }
-        .logo-track { display: flex; justify-content: center; gap: 50px; align-items: center; flex-wrap: wrap; max-width: 1200px; margin: 0 auto; }
-        .logo-track img { max-height: 35px; max-width: 150px; object-fit: contain; filter: grayscale(100%) brightness(200%) opacity(0.5); transition: opacity 0.3s; }
-        .logo-track img:hover { opacity: 0.9; }
+        /* --- UPGRADED: INFINITE LOGO MARQUEE --- */
+        .trust-banner-marquee {
+            border-top: 1px solid var(--glass-border);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 40px 0;
+            margin-top: -2px;
+            background: rgba(0,0,0,0.2);
+            overflow: hidden;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Ambient gradient fade on edges */
+        .trust-banner-marquee::before,
+        .trust-banner-marquee::after {
+            content: ''; position: absolute; top: 0; width: 150px; height: 100%; z-index: 2;
+        }
+        .trust-banner-marquee::before { left: 0; background: linear-gradient(to right, var(--bg-deep), transparent); }
+        .trust-banner-marquee::after { right: 0; background: linear-gradient(to left, var(--bg-deep), transparent); }
+
+        .trust-banner-marquee p {
+            color: #64748B; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 2px;
+            font-weight: 600; text-align: center; margin-bottom: 30px; position: relative; z-index: 3;
+        }
+
+        .marquee-content {
+            display: flex;
+            gap: 60px; /* Space between logos */
+            animation: scrollLogos 40s linear infinite; /* Adjust speed here */
+            width: max-content; /* Allows track to expand fully */
+        }
+        
+        .marquee-content:hover { animation-play-state: paused; }
+
+        .marquee-content img {
+            max-height: 30px;
+            width: auto;
+            object-fit: contain;
+            filter: grayscale(100%) brightness(200%) opacity(0.5);
+            transition: opacity 0.3s, filter 0.3s;
+        }
+        
+        .marquee-content img:hover { filter: grayscale(0%) brightness(100%) opacity(1); }
+
+        /* THE ANIMATION LOGIC */
+        @keyframes scrollLogos {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); } /* Scrolls exactly half the width */
+        }
 
         /* --- THE EDITORIAL PULL-QUOTE --- */
         .editorial-section { padding: 120px 20px; width: 100%; max-width: 1100px; margin: 0 auto; position: relative; z-index: 10; }
@@ -87,7 +143,7 @@
         .stat-card h3 { font-size: 3.5rem; font-weight: 900; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1; margin-bottom: 10px; }
         .stat-card p { color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; font-size: 0.9rem; }
 
-        /* --- THE WORK (Portfolio) --- */
+        /* --- THE WORK (REVERTED TO STATIC GRID) --- */
         .work-section { padding: 120px 40px; max-width: 1400px; margin: 0 auto; z-index: 10; position: relative; }
         .work-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; margin-top: 60px; }
         .work-card { position: relative; border-radius: 24px; overflow: hidden; aspect-ratio: 9/16; cursor: pointer; border: 1px solid var(--glass-border); transition: transform 0.4s; background: #000; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
@@ -151,8 +207,21 @@
         .faq-item[open] summary::after { transform: rotate(45deg); }
         .faq-item p { padding: 0 30px 25px; color: var(--text-muted); font-size: 1.05rem; margin: 0; }
 
-        .cta-section { padding: 150px 20px; text-align: center; border-top: 1px solid var(--glass-border); background: linear-gradient(to bottom, transparent, rgba(56, 189, 248, 0.05)); z-index: 10; position: relative; }
+        /* --- UPGRADED: EXECUTIVE MINIMALIST FOOTER --- */
+        .executive-footer { margin-top: 150px; background: rgba(0,0,0,0.3); border-top: 1px solid var(--glass-border); padding: 80px 40px 30px; z-index: 10; position: relative; }
+        .footer-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 60px; }
+        .footer-brand .footer-logo { font-size: 1.5rem; font-weight: 900; letter-spacing: -1px; color: white; margin-bottom: 10px; display: block; }
+        .footer-brand p { color: var(--text-muted); font-size: 0.95rem; max-width: 300px; font-weight: 300; }
+        .footer-col h4 { color: white; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; margin-bottom: 20px; }
+        .footer-col ul { list-style: none; }
+        .footer-col ul li { margin-bottom: 12px; }
+        .footer-col ul li a { color: var(--text-muted); text-decoration: none; font-size: 0.95rem; transition: color 0.2s; cursor: pointer; }
+        .footer-col ul li a:hover { color: var(--accent); }
+        .footer-bottom { max-width: 1200px; margin: 0 auto; border-top: 1px solid var(--glass-border); padding-top: 30px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: #475569; }
+        .engine-tag { font-weight: 600; color: #64748B; display: flex; align-items: center; gap: 8px; }
+        .engine-tag::before { content:''; display:block; width:8px; height:8px; background: var(--accent); border-radius:50%; box-shadow: 0 0 10px var(--accent); }
 
+        @media (max-width: 1024px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
         @media (max-width: 900px) {
             .director-grid, .matrix-grid, .work-grid, .tab-content { grid-template-columns: 1fr; }
             .stats-grid { grid-template-columns: 1fr 1fr; }
@@ -160,6 +229,7 @@
             .tab-container { flex-wrap: wrap; }
             .quote-container h2 { font-size: 2.8rem; letter-spacing: -1px; } 
             .quote-container { padding-left: 25px; } 
+            .footer-grid { grid-template-columns: 1fr; gap: 30px; }
         }
     </style>
 </head>
@@ -184,12 +254,18 @@
         </div>
     </div>
 
-    <div class="trust-banner">
+    <div class="trust-banner-marquee">
         <p>Trusted by top producers & premium brands</p>
-        <div class="logo-track">
+        <div class="marquee-content">
             <img src="https://i.imgur.com/ID81MlS.png" alt="VIP Mortgage">
             <img src="https://i.imgur.com/NxF7gGj.png" alt="Bison Ventures">
-            <img src="https://i.imgur.com/xQa82n8.jpeg" alt="ReMax" style="border-radius: 8px;">
+            <img src="https://i.imgur.com/xQa82n8.jpeg" alt="ReMax" style="border-radius: 4px;">
+            <img src="https://i.imgur.com/ioGgVyU.png" alt="Leading RE">
+            <img src="https://i.imgur.com/CWmPNV0.png" alt="Arizona Best">
+            
+            <img src="https://i.imgur.com/ID81MlS.png" alt="VIP Mortgage">
+            <img src="https://i.imgur.com/NxF7gGj.png" alt="Bison Ventures">
+            <img src="https://i.imgur.com/xQa82n8.jpeg" alt="ReMax" style="border-radius: 4px;">
             <img src="https://i.imgur.com/ioGgVyU.png" alt="Leading RE">
             <img src="https://i.imgur.com/CWmPNV0.png" alt="Arizona Best">
         </div>
@@ -325,16 +401,31 @@
     </section>
 
     <section class="director-section reveal">
+        <h2 style="font-size: 3.5rem; text-align: center; margin-bottom: 60px; font-weight: 900; letter-spacing:-1px;">Engineered from experience.</h2>
+        
+        <div class="director-grid" style="margin-bottom: 40px;">
+            <div>
+                <img src="assets/jason_founder_portrait.png" alt="Jason - Founder" class="director-img">
+            </div>
+            <div class="director-content">
+                <div class="matrix-badge" style="position: relative; top: 0; right: 0; display: inline-block; margin-bottom: 15px; box-shadow: none;">The Visionary</div>
+                <h2>The Cinematic Foundation.</h2>
+                <p>An elite visual engine doesn’t start with code; it starts on active film and recording sets. I built the artistic foundation of this business drawing from an extensive creative background in high-level film and music production.</p>
+                <p>We realized that capturing the perfect aesthetic wasn't enough if it couldn't scale. The goal was to take that top-tier, visceral cinematic feeling and engineer a system that delivers it flawlessly every single time.</p>
+                <p style="margin-top: 30px; font-weight: 700; color: white; font-size: 1.2rem;">— Jason Randolph<br><span style="color: var(--accent); font-weight: 600; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">Original Founder & Lead Producer</span></p>
+            </div>
+        </div>
+
         <div class="director-grid">
             <div>
-                <img src="https://i.imgur.com/qAe7yOT.jpeg" alt="Trey - Founder" class="director-img">
+                <img src="assets/trey_founder_portrait.png" alt="Trey - Founder" class="director-img">
             </div>
             <div class="director-content">
                 <div class="matrix-badge" style="position: relative; top: 0; right: 0; display: inline-block; margin-bottom: 15px; box-shadow: none;">The Architect</div>
-                <h2>Engineered from experience.</h2>
+                <h2>Scaling the Unscalable.</h2>
                 <p>I spent over 15 years in high-end commercial production and realized the industry was fundamentally broken. Brands were constantly forced to choose between stunning visual quality and internet-native speed.</p>
-                <p>So, I built an engine that does both. No bloated retainers, no endless email threads—just elite, cinematic content delivered flawlessly at scale.</p>
-                <p style="margin-top: 30px; font-weight: 700; color: white; font-size: 1.2rem;">— Michael Marolf (Trey)<br><span style="color: var(--accent); font-weight: 600; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">Founder & Creative Director</span></p>
+                <p>So, I built an engine that does both. No bloated retainers, no endless email threads—just elite, cinematic content delivered efficiently at scale.</p>
+                <p style="margin-top: 30px; font-weight: 700; color: white; font-size: 1.2rem;">— Michael Marolf (Trey)<br><span style="color: var(--accent); font-weight: 600; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">Founder & System Architect</span></p>
             </div>
         </div>
     </section>
@@ -355,11 +446,47 @@
         </details>
     </section>
 
-    <section class="cta-section reveal">
-        <h2 style="font-size: 3.5rem;">Experience the Studio.</h2>
-        <p style="font-size: 1.2rem; color: var(--text-muted); font-weight: 300; max-width: 600px; margin: 0 auto 40px;">Stop staring at a blank page. Meet the first interactive creative director built to learn your voice and build your next campaign.</p>
-        <button class="primary-btn" onclick="window.location.href='campaign-builder.html'">Start Building Your Campaign</button>
-    </section>
+    <footer class="executive-footer">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <span class="footer-logo">XUNAMI</span>
+                <p>Engineered authority for high-performing real estate professionals.</p>
+            </div>
+            
+            <div class="footer-col">
+                <h4>Engine</h4>
+                <ul>
+                    <li><a onclick="document.getElementById('matrix').scrollIntoView({behavior: 'smooth'})">The System</a></li>
+                    <li><a onclick="document.getElementById('work').scrollIntoView({behavior: 'smooth'})">Work</a></li>
+                    <li><a onclick="document.getElementById('suite').scrollIntoView({behavior: 'smooth'})">The Suite</a></li>
+                    <li><a href="campaign-builder.html">Client Login</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-col">
+                <h4>Studio</h4>
+                <ul>
+                    <li><a>Tempe, Arizona</a></li>
+                    <li><a>trey@xunami.com</a></li>
+                    <li><a>Schedule Pre-Pro</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-col">
+                <h4>Social</h4>
+                <ul>
+                    <li><a>Instagram</a></li>
+                    <li><a>LinkedIn</a></li>
+                    <li><a>Threads</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2026 Xunami Media LLC. All Rights Reserved.</p>
+            <div class="engine-tag">Powered by Xunami Engine</div>
+        </div>
+    </footer>
 
     <script>
         const canvas = document.getElementById("hero-sequence");
@@ -369,7 +496,6 @@
         const text = document.getElementById("punchy-text");
         const introText = document.getElementById("intro-question");
 
-        // 73 Frames matching your sequence exactly
         const frameCount = 73; 
         const currentFrame = index => `hero-frames/frame${String(index + 1).padStart(2, '0')}.jpg`; 
         
@@ -431,5 +557,6 @@
             document.getElementById(tabId).classList.add('active');
         }
     </script>
+    <script src="assets/xunami-ai.js"></script>
 </body>
 </html>
