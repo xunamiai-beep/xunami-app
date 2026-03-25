@@ -12,7 +12,7 @@ exports.handler = async function(event, context) {
        return { statusCode: 200, body: JSON.stringify({ reply: "Diagnostic: I cannot find the GEMINI_API_KEY in the Netlify variables." }) };
     }
 
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`;
     const contents = [...history, { role: "user", parts: [{ text: userMessage }] }];
 
     // 2. Call Gemini
