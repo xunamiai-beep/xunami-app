@@ -3,227 +3,433 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Xunami | Commercial Video & AI Automation</title>
+    <title>Xunami | Premium Commercial Video & Automation</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap');
 
         :root {
-            --bg-color: #050505;
-            --card-bg: #111111;
-            --card-border: rgba(255, 255, 255, 0.1);
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --accent: #38bdf8;
-            --accent-gradient: linear-gradient(135deg, #38bdf8, #8b5cf6);
+            --bg-deep: #0B0F19; --text-main: #F8FAFC; --text-muted: #94A3B8;
+            --glass-bg: rgba(255, 255, 255, 0.02); --glass-border: rgba(255, 255, 255, 0.06);
+            --accent-glow: rgba(56, 189, 248, 0.12); --accent-glow-2: rgba(139, 92, 246, 0.12);
+            --accent: #38bdf8; --accent-gradient: linear-gradient(135deg, #38bdf8, #8b5cf6);
+            --success: #34d399; --warning: #fbbf24; --error: #ef4444;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
 
         body {
-            background-color: var(--bg-color); color: var(--text-main); line-height: 1.6;
+            background-color: var(--bg-deep); color: var(--text-main); line-height: 1.6;
             overflow-x: hidden; min-height: 100vh;
+            background-image: radial-gradient(circle at 15% 30%, var(--accent-glow), transparent 40%),
+                              radial-gradient(circle at 85% 70%, var(--accent-glow-2), transparent 40%);
+            background-attachment: fixed;
         }
 
-        /* --- GLOBAL ANIMATIONS & UTILS --- */
         .reveal { opacity: 0; transform: translateY(40px); transition: all 1s cubic-bezier(0.16, 1, 0.3, 1); }
         .reveal.active { opacity: 1; transform: translateY(0); }
-        
-        /* --- TOP NAVIGATION BAR --- */
+
+        /* --- NAVIGATION --- */
         .top-nav {
             position: fixed; top: 0; left: 0; width: 100%; padding: 20px 40px; display: flex;
-            justify-content: space-between; align-items: center; background: rgba(5, 5, 5, 0.7);
-            backdrop-filter: blur(20px); border-bottom: 1px solid var(--card-border); z-index: 1000;
+            justify-content: space-between; align-items: center; background: rgba(11, 15, 25, 0.7);
+            backdrop-filter: blur(20px); border-bottom: 1px solid var(--glass-border); z-index: 2000;
         }
         .nav-logo { font-size: 1.5rem; font-weight: 900; letter-spacing: -1px; cursor: pointer; color: white; }
         .nav-links { display: flex; align-items: center; gap: 30px; }
-        .nav-links a { color: var(--text-muted); text-decoration: none; font-weight: 600; transition: color 0.3s ease; cursor: pointer; }
+        .nav-links a { color: var(--text-muted); text-decoration: none; font-weight: 500; cursor: pointer; transition: color 0.3s ease; }
         .nav-links a:hover { color: white; }
-        .nav-btn {
-            background: white; color: black; border: none; padding: 10px 24px;
-            font-size: 0.95rem; font-weight: 700; border-radius: 50px; cursor: pointer; transition: transform 0.2s ease;
-        }
-        .nav-btn:hover { transform: translateY(-2px); }
+        .nav-btn { background: rgba(255,255,255,0.9); color: #000; border: none; padding: 10px 24px; font-size: 0.95rem; font-weight: 700; border-radius: 50px; cursor: pointer; transition: all 0.2s ease; }
+        .nav-btn:hover { background: #fff; transform: translateY(-2px); }
+        .primary-btn { background: rgba(255, 255, 255, 0.9); color: #000; border: none; padding: 18px 40px; font-size: 1.1rem; font-weight: 700; border-radius: 50px; cursor: pointer; transition: all 0.3s ease; display: inline-block; }
+        .primary-btn:hover { background: #fff; transform: scale(1.02); box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1); }
 
-        /* --- PAGE CONTAINERS --- */
-        .page-section { display: none; width: 100%; }
-        .page-section.active { display: block; animation: fadeIn 0.5s ease forwards; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* --- HERO & SCROLL SEQUENCE --- */
+        .scroll-track { height: 400vh; position: relative; background: #000; }
+        .canvas-container { position: sticky; top: 0; height: 100vh; width: 100vw; overflow: hidden; display: flex; justify-content: center; align-items: center; background: #000; }
+        canvas { position: absolute; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
+        #darkness { position: absolute; inset: 0; background: var(--bg-deep); opacity: 0; z-index: 2; will-change: opacity; }
+        #intro-question { position: absolute; font-size: 4rem; font-weight: 700; text-align: center; letter-spacing: -1px; line-height: 1.1; color: white; z-index: 3; will-change: opacity, transform; text-shadow: 0 10px 30px rgba(0,0,0,0.8); padding: 0 20px; }
+        #punchy-text { position: absolute; font-size: 5rem; font-weight: 900; text-align: center; letter-spacing: -2px; line-height: 1.1; opacity: 0; transform: translateY(30px); z-index: 3; will-change: opacity, transform; }
 
-        /* =========================================
-           NEW STOREFRONT (HOMEPAGE) STYLES
-           ========================================= */
-        
-        /* 1. Hero Parallax */
-        #hero-section { position: relative; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; overflow: hidden; }
-        .hero-bg { position: absolute; top: 0; left: 0; width: 100%; height: 120%; object-fit: cover; z-index: -2; opacity: 0.4; pointer-events: none; }
-        .hero-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(5,5,5,0.2) 0%, rgba(5,5,5,1) 100%); z-index: -1; pointer-events: none; }
-        .hero-content { z-index: 10; max-width: 900px; padding: 0 20px; }
-        .hero-title { font-size: 5rem; font-weight: 900; line-height: 1; margin-bottom: 20px; letter-spacing: -2px; }
-        .hero-sub { font-size: 1.25rem; color: var(--text-muted); margin-bottom: 40px; max-width: 700px; margin-left: auto; margin-right: auto; }
-        .btn-primary { background: var(--accent-gradient); color: white; border: none; padding: 18px 40px; font-size: 1.1rem; font-weight: 800; border-radius: 50px; cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease; }
-        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(56, 189, 248, 0.4); }
+        /* --- TRUST BANNER --- */
+        .trust-banner { border-top: 1px solid var(--glass-border); border-bottom: 1px solid var(--glass-border); padding: 40px 20px; margin-top: -2px; text-align: center; background: rgba(0,0,0,0.2); position: relative; z-index: 10; }
+        .trust-banner p { color: #64748B; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 2px; font-weight: 600; margin-bottom: 30px; }
+        .logo-track { display: flex; justify-content: center; gap: 50px; align-items: center; flex-wrap: wrap; max-width: 1200px; margin: 0 auto; }
+        .logo-track img { max-height: 35px; max-width: 150px; object-fit: contain; filter: grayscale(100%) brightness(200%) opacity(0.5); transition: opacity 0.3s; }
+        .logo-track img:hover { opacity: 0.9; }
 
-        /* 2. The Problem (Text Scrub Area) */
-        .problem-section { padding: 150px 20px; text-align: center; max-width: 900px; margin: 0 auto; }
-        .problem-section h2 { font-size: 3.5rem; line-height: 1.1; margin-bottom: 30px; letter-spacing: -1px; }
-        .problem-section p { font-size: 1.5rem; color: var(--text-muted); line-height: 1.6; }
+        /* --- THE EDITORIAL PULL-QUOTE --- */
+        .editorial-section { padding: 120px 20px; width: 100%; max-width: 1100px; margin: 0 auto; position: relative; z-index: 10; }
+        .quote-container { border-left: 2px solid var(--accent); padding-left: 50px; position: relative; }
+        .quote-container::before { content: ''; position: absolute; left: -2px; top: 0; height: 100%; width: 30px; background: linear-gradient(90deg, rgba(56, 189, 248, 0.2), transparent); filter: blur(10px); }
+        .quote-container h2 { font-size: 4rem; font-weight: 300; letter-spacing: -2px; line-height: 1.1; margin-bottom: 30px; color: var(--text-main); }
+        .quote-container p { font-size: 1.25rem; font-weight: 300; color: var(--text-muted); max-width: 700px; line-height: 1.8; }
 
-        /* 3. The Philosophy (Sticky Split Screen) */
-        .split-section { display: flex; position: relative; margin-top: 100px; border-top: 1px solid var(--card-border); border-bottom: 1px solid var(--card-border); }
-        .split-left { width: 50%; height: 100vh; position: sticky; top: 0; overflow: hidden; background: #000; }
-        .split-left img { width: 100%; height: 100%; object-fit: cover; opacity: 0.6; }
-        .split-right { width: 50%; padding: 150px 80px; background: var(--bg-color); }
-        .split-right h2 { font-size: 3rem; margin-bottom: 30px; line-height: 1.1; }
-        .split-right p { font-size: 1.2rem; color: var(--text-muted); margin-bottom: 30px; }
-        .glass-box { background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); padding: 30px; border-radius: 20px; backdrop-filter: blur(10px); }
+        /* --- THE MATRIX --- */
+        .matrix-section { padding: 80px 20px; width: 100%; max-width: 1100px; margin: 0 auto; position: relative; z-index: 10;}
+        .matrix-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 50px; }
+        .matrix-card { background: var(--glass-bg); backdrop-filter: blur(24px); border-radius: 24px; padding: 50px 40px; transition: transform 0.4s ease, box-shadow 0.4s ease; }
+        .matrix-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+        .matrix-old { border: 1px solid rgba(255, 255, 255, 0.05); opacity: 0.6; transition: opacity 0.4s ease; }
+        .matrix-old:hover { opacity: 0.9; }
+        .matrix-new { border: 1px solid rgba(56, 189, 248, 0.3); background: linear-gradient(180deg, rgba(56, 189, 248, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%); position: relative; }
+        .matrix-badge { position: absolute; top: -15px; right: 30px; background: var(--accent-gradient); color: white; padding: 6px 16px; border-radius: 50px; font-size: 0.8rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; box-shadow: 0 5px 15px rgba(56, 189, 248, 0.3); }
+        .matrix-title { font-size: 1.8rem; font-weight: 700; margin-bottom: 30px; letter-spacing: -0.5px; }
+        .matrix-list { list-style: none; }
+        .matrix-list li { margin-bottom: 20px; font-size: 1.1rem; display: flex; align-items: flex-start; gap: 15px; color: var(--text-muted); }
+        .matrix-new .matrix-list li { color: var(--text-main); }
+        .icon-x { color: var(--error); font-weight: 900; margin-top: 2px; }
+        .icon-check { color: var(--accent); font-weight: 900; margin-top: 2px; }
 
-        /* 4. The Portfolio (Magnetic Hover) */
-        .work-section { padding: 150px 40px; max-width: 1400px; margin: 0 auto; }
-        .work-section h2 { font-size: 4rem; text-align: center; margin-bottom: 80px; }
-        .work-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
-        .work-card { position: relative; border-radius: 24px; overflow: hidden; aspect-ratio: 9/16; cursor: pointer; border: 1px solid var(--card-border); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease; background: #111; }
-        .work-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; opacity: 0.7; }
-        .work-card:hover { transform: scale(1.02) translateY(-10px); box-shadow: 0 30px 60px rgba(0,0,0,0.8); border-color: rgba(255,255,255,0.3); }
-        .work-card:hover img { transform: scale(1.05); opacity: 0.4; }
-        .work-info { position: absolute; bottom: 0; left: 0; width: 100%; padding: 30px; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); transform: translateY(20px); opacity: 0.8; transition: all 0.4s ease; }
+        /* --- THE STATS BAR --- */
+        .stats-section { padding: 60px 20px; background: rgba(0,0,0,0.3); border-top: 1px solid var(--glass-border); border-bottom: 1px solid var(--glass-border); position: relative; z-index: 10;}
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; max-width: 1200px; margin: 0 auto; text-align: center; }
+        .stat-card h3 { font-size: 3.5rem; font-weight: 900; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1; margin-bottom: 10px; }
+        .stat-card p { color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; font-size: 0.9rem; }
+
+        /* --- THE WORK (Portfolio) --- */
+        .work-section { padding: 120px 40px; max-width: 1400px; margin: 0 auto; z-index: 10; position: relative; }
+        .work-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; margin-top: 60px; }
+        .work-card { position: relative; border-radius: 24px; overflow: hidden; aspect-ratio: 9/16; cursor: pointer; border: 1px solid var(--glass-border); transition: transform 0.4s; background: #000; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
+        .work-card video { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease, opacity 0.6s ease; opacity: 0.5; }
+        .work-card:hover { transform: scale(1.02) translateY(-10px); border-color: rgba(255,255,255,0.3); box-shadow: 0 30px 60px rgba(0,0,0,0.6); }
+        .work-card:hover video { transform: scale(1.05); opacity: 1; }
+        .work-info { position: absolute; bottom: 0; left: 0; width: 100%; padding: 30px; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); transform: translateY(20px); opacity: 0; transition: all 0.4s ease; pointer-events: none; }
         .work-card:hover .work-info { transform: translateY(0); opacity: 1; }
-        .work-info h3 { font-size: 1.5rem; margin-bottom: 10px; }
-        .work-info p { color: var(--accent); font-weight: 600; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* 5. The Gateway CTA */
-        .cta-section { padding: 150px 20px; text-align: center; background: radial-gradient(circle at center, rgba(56, 189, 248, 0.1) 0%, var(--bg-color) 70%); }
-        .cta-section h2 { font-size: 4rem; margin-bottom: 20px; }
-        .cta-section p { font-size: 1.2rem; color: var(--text-muted); margin-bottom: 40px; max-width: 600px; margin-left: auto; margin-right: auto; }
+        /* --- THE AUTOMATION SUITE (TABS) --- */
+        .suite-section { padding: 120px 20px; width: 100%; max-width: 1200px; margin: 0 auto; position: relative; z-index: 10; }
+        .tab-container { display: flex; justify-content: center; gap: 15px; margin-bottom: 40px; flex-wrap: wrap; }
+        .tab-btn { background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-muted); padding: 15px 30px; border-radius: 50px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; backdrop-filter: blur(10px); }
+        .tab-btn:hover { color: white; border-color: rgba(255,255,255,0.2); }
+        .tab-btn.active { background: rgba(255,255,255,0.1); color: white; border-color: var(--accent); box-shadow: 0 0 20px rgba(56, 189, 248, 0.2); }
+
+        .suite-display { background: var(--glass-bg); backdrop-filter: blur(24px); border: 1px solid var(--glass-border); border-radius: 30px; padding: 60px; min-height: 500px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); position: relative; overflow: hidden; }
+        .tab-content { display: none; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; animation: fadeUp 0.5s ease forwards; }
+        .tab-content.active { display: grid; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .tagline { text-transform: uppercase; letter-spacing: 2px; font-weight: 700; font-size: 0.9rem; margin-bottom: 10px; display: block; }
+        .headline { font-size: 3rem; font-weight: 900; letter-spacing: -1.5px; line-height: 1.1; margin-bottom: 25px; color: white;}
+        .para { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 25px; font-weight: 300; }
+        .avatar-upsell { background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 16px; padding: 25px; margin-top: 30px; }
+        .avatar-upsell h4 { color: #8b5cf6; font-weight: 700; margin-bottom: 8px; font-size: 1.1rem;}
+        .avatar-upsell p { color: #A78BFA; font-size: 0.95rem; font-weight: 400; margin: 0; }
+
+        .waveform-visual { position: relative; display: flex; align-items: center; justify-content: center; height: 200px; gap: 4px; }
+        .wave-bar { width: 5px; background: var(--accent); border-radius: 5px; animation: quiet_pulsing 2s infinite ease-in-out; opacity: 0.7; }
+        .wave-bar:nth-child(1) { height: 40px; animation-delay: 0.1s; } .wave-bar:nth-child(2) { height: 70px; animation-delay: 0.2s; background: #38bdf8; } .wave-bar:nth-child(3) { height: 100px; animation-delay: 0.3s; background: #55b6f9; } .wave-bar:nth-child(4) { height: 80px; animation-delay: 0.4s; background: #71affe; } .wave-bar:nth-child(5) { height: 120px; animation-delay: 0.5s; background: #8b5cf6; } .wave-bar:nth-child(6) { height: 60px; animation-delay: 0.6s; background: #a78bfa; } .wave-bar:nth-child(7) { height: 90px; animation-delay: 0.7s; } .wave-bar:nth-child(8) { height: 30px; animation-delay: 0.8s; }
+        @keyframes quiet_pulsing { 0%, 100% { transform: scaleY(1); opacity: 0.7; } 50% { transform: scaleY(1.3); opacity: 1; filter: blur(1px); } }
+
+        .visualizer-container { position: relative; width: 100%; aspect-ratio: 4/3; border-radius: 20px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 30px 60px rgba(0,0,0,0.5); background: #000; }
+        .mls-photo { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.6; animation: cinematicMotion 15s infinite alternate ease-in-out; }
+        @keyframes cinematicMotion { 0% { transform: scale(1.05) translate(0, 0); } 100% { transform: scale(1.2) translate(-3%, 2%); } }
+        .ui-overlay { position: absolute; inset: 0; pointer-events: none; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; }
+        .status-badge { background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px); border: 1px solid rgba(56, 189, 248, 0.3); color: var(--accent); padding: 8px 16px; border-radius: 50px; font-size: 0.8rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; align-self: flex-start; display: flex; align-items: center; gap: 8px; animation: pulseBadge 2s infinite; }
+        .status-badge::before { content: ''; display: block; width: 8px; height: 8px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 10px var(--accent); }
+        .processing-steps { display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
+        .step-pill { background: rgba(11, 15, 25, 0.8); border: 1px solid var(--glass-border); color: white; padding: 8px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 500; backdrop-filter: blur(10px); opacity: 0; transform: translateX(20px); animation: slideIn 6s infinite; }
+        .step-pill:nth-child(1) { animation-delay: 0s; } .step-pill:nth-child(2) { animation-delay: 2s; } .step-pill:nth-child(3) { animation-delay: 4s; }
+        @keyframes pulseBadge { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; box-shadow: 0 0 15px rgba(56, 189, 248, 0.2); } }
+        @keyframes slideIn { 0% { opacity: 0; transform: translateX(20px); } 10%, 90% { opacity: 1; transform: translateX(0); } 100% { opacity: 0; transform: translateX(-20px); } }
+
+        .calendar-visual { width: 100%; aspect-ratio: 4/3; background: rgba(0,0,0,0.4); border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 4rem; box-shadow: inset 0 0 50px rgba(0,0,0,0.5); }
+
+        /* --- THE DIRECTOR'S NOTE --- */
+        .director-section { padding: 80px 20px 120px; max-width: 1100px; margin: 0 auto; position: relative; z-index: 10; }
+        .director-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 60px; align-items: center; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 30px; padding: 50px; backdrop-filter: blur(20px); }
+        .director-img { width: 100%; aspect-ratio: 4/5; object-fit: cover; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); }
+        .director-content h2 { font-size: 2.5rem; line-height: 1.1; margin-bottom: 20px; letter-spacing: -1px; }
+        .director-content p { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 20px; }
+
+        /* --- FAQ ACCORDION --- */
+        .faq-section { padding: 50px 20px 150px; max-width: 800px; margin: 0 auto; position: relative; z-index: 10; }
+        .faq-item { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 16px; margin-bottom: 15px; overflow: hidden; backdrop-filter: blur(10px); }
+        .faq-item summary { padding: 25px 30px; font-size: 1.2rem; font-weight: 600; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; color: var(--text-main); }
+        .faq-item summary::-webkit-details-marker { display: none; }
+        .faq-item summary::after { content: '+'; font-size: 1.5rem; color: var(--accent); transition: transform 0.3s ease; }
+        .faq-item[open] summary::after { transform: rotate(45deg); }
+        .faq-item p { padding: 0 30px 25px; color: var(--text-muted); font-size: 1.05rem; margin: 0; }
+
+        .cta-section { padding: 150px 20px; text-align: center; border-top: 1px solid var(--glass-border); background: linear-gradient(to bottom, transparent, rgba(56, 189, 248, 0.05)); z-index: 10; position: relative; }
 
         @media (max-width: 900px) {
-            .hero-title { font-size: 3rem; }
-            .split-section { flex-direction: column; }
-            .split-left { width: 100%; height: 50vh; position: relative; }
-            .split-right { width: 100%; padding: 60px 20px; }
-            .work-grid { grid-template-columns: 1fr; }
+            .director-grid, .matrix-grid, .work-grid, .tab-content { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .director-grid, .suite-display { padding: 30px; }
+            .tab-container { flex-wrap: wrap; }
+            .quote-container h2 { font-size: 2.8rem; letter-spacing: -1px; } 
+            .quote-container { padding-left: 25px; } 
         }
     </style>
 </head>
 <body>
 
     <nav class="top-nav">
-        <div class="nav-logo" onclick="togglePage('storefront')">XUNAMI</div>
+        <div class="nav-logo" onclick="window.scrollTo({top:0, behavior:'smooth'})">XUNAMI</div>
         <div class="nav-links">
-            <a onclick="document.getElementById('problem').scrollIntoView({behavior: 'smooth'})">The System</a>
+            <a onclick="document.getElementById('matrix').scrollIntoView({behavior: 'smooth'})">The System</a>
             <a onclick="document.getElementById('work').scrollIntoView({behavior: 'smooth'})">Work</a>
-            <button class="nav-btn" onclick="togglePage('builder')">Client Login</button>
+            <a onclick="document.getElementById('suite').scrollIntoView({behavior: 'smooth'})">The Suite</a>
+            <button class="nav-btn" onclick="window.location.href='campaign-builder.html'">Client Login</button>
         </div>
     </nav>
 
-    <section id="storefront-page" class="page-section active">
-        
-        <header id="hero-section">
-            <video class="hero-bg" id="parallax-video" src="https://i.imgur.com/bQb3kxE.mp4" autoplay loop muted playsinline></video>
-            <div class="hero-overlay"></div>
-            <div class="hero-content">
-                <h1 class="hero-title reveal" style="transform: translateY(0); opacity: 1;">Super Bowl Production.<br>Social Media Speed.</h1>
-                <p class="hero-sub reveal" style="transition-delay: 0.2s; transform: translateY(0); opacity: 1;">We re-engineered commercial video marketing. Xunami merges a traditional filmmaking pedigree with proprietary AI technology to scale your brand without the friction.</p>
-                <button class="btn-primary reveal" style="transition-delay: 0.4s; transform: translateY(0); opacity: 1;" onclick="togglePage('builder')">Enter the Studio</button>
-            </div>
-        </header>
+    <div class="scroll-track" id="track">
+        <div class="canvas-container">
+            <canvas id="hero-sequence" width="1920" height="1080"></canvas>
+            <div id="darkness"></div>
+            <h1 id="intro-question">What if your next campaign practically built itself?</h1>
+            <h1 id="punchy-text">Cinematic Quality.<br><span style="color: #E2E8F0;">Zero Friction.</span></h1>
+        </div>
+    </div>
 
-        <section id="problem" class="problem-section reveal">
-            <h2>The Industry Forced You to Choose.<br>We Refused To.</h2>
-            <p>Until now, brands faced a frustrating trade-off. Hire a traditional production house that takes months and drains your budget, or settle for a fast-turnaround social agency that damages your brand equity with cheap content. You deserve breathtaking visuals that actually keep up with the speed of the internet.</p>
-        </section>
+    <div class="trust-banner">
+        <p>Trusted by top producers & premium brands</p>
+        <div class="logo-track">
+            <img src="https://i.imgur.com/ID81MlS.png" alt="VIP Mortgage">
+            <img src="https://i.imgur.com/NxF7gGj.png" alt="Bison Ventures">
+            <img src="https://i.imgur.com/xQa82n8.jpeg" alt="ReMax" style="border-radius: 8px;">
+            <img src="https://i.imgur.com/ioGgVyU.png" alt="Leading RE">
+            <img src="https://i.imgur.com/CWmPNV0.png" alt="Arizona Best">
+        </div>
+    </div>
 
-        <section id="philosophy" class="split-section">
-            <div class="split-left">
-                <img src="https://images.unsplash.com/photo-1601506521937-0121a7fe2b6b?q=80&w=1000&auto=format&fit=crop" alt="Cinematic Set">
-            </div>
-            <div class="split-right">
-                <div class="reveal">
-                    <h2>The Filmmaker’s Eye.</h2>
-                    <p>We approach content from a completely different perspective. We start with a foundation in high-end commercial filmmaking—obsessing over lighting, composition, and narrative.</p>
-                </div>
-                <div class="reveal" style="margin-top: 60px;">
-                    <h2>The Hacker’s Engine.</h2>
-                    <p>Then, we funnel that craft through our custom-built AI tech stack and automated client portal. We remove the endless email threads and replace them with strategic automation.</p>
-                </div>
-                <div class="glass-box reveal" style="margin-top: 60px;">
-                    <p style="margin: 0; color: white; font-weight: 600;">The result? Frictionless collaboration, instant creative direction, and cinematic content delivered at scale.</p>
-                </div>
-            </div>
-        </section>
-
-        <section id="work" class="work-section">
-            <h2 class="reveal">Any Screen. Any Scale.</h2>
-            <div class="work-grid">
-                <div class="work-card reveal">
-                    <img src="https://images.unsplash.com/photo-1536240478700-b869070f9279?q=80&w=800&auto=format&fit=crop" alt="Commercial">
-                    <div class="work-info">
-                        <h3>Commercial Production</h3>
-                        <p>Brand Anthems & Narrative</p>
-                    </div>
-                </div>
-                <div class="work-card reveal" style="transition-delay: 0.1s;">
-                    <img src="https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=800&auto=format&fit=crop" alt="Social">
-                    <div class="work-info">
-                        <h3>Social Ecosystems</h3>
-                        <p>TikTok & Reels Optimized</p>
-                    </div>
-                </div>
-                <div class="work-card reveal" style="transition-delay: 0.2s;">
-                    <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=800&auto=format&fit=crop" alt="Real Estate">
-                    <div class="work-info">
-                        <h3>Real Estate Automation</h3>
-                        <p>Cinematic Property Tours</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="cta-section reveal">
-            <h2>Meet Your New Co-Producer.</h2>
-            <p>Stop staring at a blank page. Experience the first interactive creative director built to learn your brand voice and build your next campaign.</p>
-            <button class="btn-primary" onclick="togglePage('builder')">Start Building Your Campaign</button>
-        </section>
-
+    <section class="editorial-section reveal">
+        <div class="quote-container">
+            <h2>Cinematic storytelling that<br>commands the market.</h2>
+            <p>Beautiful footage isn't enough anymore. You need content engineered to capture attention and win luxury listings. We merged 15 years of high-end commercial filmmaking with algorithmic precision to turn your visual presence into your strongest lead generator.</p>
+        </div>
     </section>
 
-    <section id="builder-page" class="page-section" style="padding-top: 150px; text-align: center;">
-        <h1 style="font-size: 3rem; margin-bottom: 20px;">Campaign Builder</h1>
-        <p style="color: var(--text-muted); margin-bottom: 50px;">(Your existing Wizard Code and Chatbot will live exactly here. I have hidden the visual clutter of the 6 steps for this preview to ensure the storefront works perfectly first!)</p>
-        <button class="btn-primary" onclick="togglePage('storefront')">← Back to Homepage</button>
+    <section id="matrix" class="matrix-section reveal">
+        <div class="matrix-grid">
+            <div class="matrix-card matrix-old">
+                <h3 class="matrix-title" style="color: #94A3B8;">The Traditional Agency</h3>
+                <ul class="matrix-list">
+                    <li><span class="icon-x">✕</span> 4 to 6 week turnaround times.</li>
+                    <li><span class="icon-x">✕</span> Bloated $15k+ per-project retainers.</li>
+                    <li><span class="icon-x">✕</span> Endless, confusing email threads.</li>
+                    <li><span class="icon-x">✕</span> Content built for TV, forcefully cropped for social.</li>
+                </ul>
+            </div>
+            <div class="matrix-card matrix-new">
+                <div class="matrix-badge">The New Standard</div>
+                <h3 class="matrix-title">The Xunami Engine</h3>
+                <ul class="matrix-list">
+                    <li><span class="icon-check">✓</span> 72-hour average automated delivery.</li>
+                    <li><span class="icon-check">✓</span> Flat, predictable, scalable pricing.</li>
+                    <li><span class="icon-check">✓</span> One centralized AI Co-Producer portal.</li>
+                    <li><span class="icon-check">✓</span> Engineered natively for the timeline algorithm.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="stats-section reveal">
+        <div class="stats-grid">
+            <div class="stat-card"><h3>72h</h3><p>Avg Turnaround</p></div>
+            <div class="stat-card"><h3>100s</h3><p>Clients Scaled</p></div>
+            <div class="stat-card"><h3>15+</h3><p>Years Experience</p></div>
+            <div class="stat-card"><h3>1000s</h3><p>Hours Produced</p></div>
+        </div>
+    </section>
+
+    <section id="work" class="work-section">
+        <h2 class="reveal" style="font-size: 3.5rem; text-align: center;">Any Screen. Any Scale.</h2>
+        <div class="work-grid">
+            <div class="work-card reveal">
+                <video src="https://i.imgur.com/PlXYY7S.mp4" autoplay loop muted playsinline></video>
+                <div class="work-info">
+                    <h3>Commercial Production</h3>
+                    <p style="color:var(--accent); font-weight: 600;">Brand Anthems & Sizzle</p>
+                </div>
+            </div>
+            <div class="work-card reveal" style="transition-delay: 0.1s;">
+                <video src="https://i.imgur.com/Gbo7e1r.mp4" autoplay loop muted playsinline></video>
+                <div class="work-info">
+                    <h3>Social Ecosystems</h3>
+                    <p style="color:var(--accent); font-weight: 600;">TikTok & Reels</p>
+                </div>
+            </div>
+            <div class="work-card reveal" style="transition-delay: 0.2s;">
+                <video src="https://i.imgur.com/kZ3ejGW.mp4" autoplay loop muted playsinline></video>
+                <div class="work-info">
+                    <h3>Real Estate Automation</h3>
+                    <p style="color:var(--accent); font-weight: 600;">Cinematic Property Tours</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="suite" class="suite-section reveal">
+        <h2 style="text-align: center; font-size: 3.5rem; font-weight: 900; margin-bottom: 40px;">The Automation Suite.</h2>
+        
+        <div class="tab-container">
+            <button class="tab-btn active" onclick="switchTab('voice', this)">🎙️ Voice Synthesis</button>
+            <button class="tab-btn" onclick="switchTab('listing', this)">🏠 Listing Engine</button>
+            <button class="tab-btn" onclick="switchTab('calendar', this)">📅 Content Calendar</button>
+        </div>
+
+        <div class="suite-display">
+            <div id="voice" class="tab-content active">
+                <div>
+                    <span class="tagline" style="color: var(--accent);">Exclusive Capabilities</span>
+                    <h2 class="headline">Infinite Output.<br>Zero Studio Time.</h2>
+                    <p class="para">You are the voice of your brand, but your schedule shouldn't be the bottleneck. With a single, secure 5-minute audio sample, we engineer a studio-grade digital clone of your exact voice.</p>
+                    <p class="para">Deploy authentic content without ever stepping up to a microphone. You approve the script; the engine does the rest.</p>
+                    <button class="primary-btn" onclick="window.location.href='synthesis.html'">Initialize Voice Profile</button>
+                    
+                    <div class="avatar-upsell">
+                        <h4>Full Digital Synthesis (By Request)</h4>
+                        <p>Step completely out of the production timeline while maintaining your visual brand identity with hyper-realistic AI Avatar cloning. Available exclusively for select retainer clients.</p>
+                    </div>
+                </div>
+                <div class="waveform-visual">
+                    <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+                    <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+                </div>
+            </div>
+
+            <div id="listing" class="tab-content">
+                <div>
+                    <span class="tagline" style="color: var(--success);">Cinematic Synthesis</span>
+                    <h2 class="headline">Fluid Motion.<br>Zero Film Crew.</h2>
+                    <p class="para">Every property deserves to be seen in breathtaking motion. By leveraging Google's state-of-the-art Veo 3 engine, we transform your standard high-resolution architectural photography into dynamic video tours.</p>
+                    <p class="para">Our system intelligently analyzes your images, applies cinematic camera movements, and seamlessly stitches the footage to trending audio and your custom branded outro. Premium video, delivered instantly.</p>
+                    <button class="primary-btn" onclick="window.location.href='listing-portal.html'">Launch Listing Tour</button>
+                </div>
+                <div class="visualizer-container">
+                    <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=1200&auto=format&fit=crop" alt="MLS Interior" class="mls-photo">
+                    <div class="ui-overlay">
+                        <div class="status-badge">Veo 3 Engine Active</div>
+                        <div class="processing-steps">
+                            <div class="step-pill">Analyzing High-Res Photography...</div>
+                            <div class="step-pill">Generating Cinematic Motion...</div>
+                            <div class="step-pill">Syncing Audio & Outro...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="calendar" class="tab-content">
+                <div>
+                    <span class="tagline" style="color: var(--warning);">Predictable Distribution</span>
+                    <h2 class="headline">Orchestrate Your<br>Next 30 Days.</h2>
+                    <p class="para">Great content dies without distribution. Your AI Co-Producer generates a comprehensive, tailor-made visual content calendar. Know exactly what to post, what caption to use, and when to drop it.</p>
+                    <button class="primary-btn" onclick="window.location.href='campaign-builder.html'">Open Campaign Builder</button>
+                </div>
+                <div class="calendar-visual">📅</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="director-section reveal">
+        <div class="director-grid">
+            <div>
+                <img src="https://i.imgur.com/qAe7yOT.jpeg" alt="Trey - Founder" class="director-img">
+            </div>
+            <div class="director-content">
+                <div class="matrix-badge" style="position: relative; top: 0; right: 0; display: inline-block; margin-bottom: 15px; box-shadow: none;">The Architect</div>
+                <h2>Engineered from experience.</h2>
+                <p>I spent over 15 years in high-end commercial production and realized the industry was fundamentally broken. Brands were constantly forced to choose between stunning visual quality and internet-native speed.</p>
+                <p>So, I built an engine that does both. No bloated retainers, no endless email threads—just elite, cinematic content delivered flawlessly at scale.</p>
+                <p style="margin-top: 30px; font-weight: 700; color: white; font-size: 1.2rem;">— Michael Marolf (Trey)<br><span style="color: var(--accent); font-weight: 600; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">Founder & Creative Director</span></p>
+            </div>
+        </div>
+    </section>
+
+    <section class="faq-section reveal">
+        <h2 style="font-size: 3rem; text-align: center; margin-bottom: 40px; font-weight: 700;">Frictionless from day one.</h2>
+        <details class="faq-item">
+            <summary>Do I need to own a professional camera?</summary>
+            <p>No. We either handle the cinematic heavy lifting for you on-site, or we provide precise, step-by-step guidance through our portal so you can capture perfect BTS footage using just your smartphone.</p>
+        </details>
+        <details class="faq-item">
+            <summary>Who is actually editing my footage?</summary>
+            <p>Your content is always edited by a dedicated, high-end commercial video editor. We use AI strictly for workflow automation, concept generation, and project management—never to replace the human craft of editing.</p>
+        </details>
+        <details class="faq-item">
+            <summary>What happens if I don't know what to film?</summary>
+            <p>That is exactly why we built the Xunami Co-Producer. Your dedicated AI Chatbot will learn your brand voice, brainstorm concepts, write the script, and generate a customized shot-list for you in minutes.</p>
+        </details>
+    </section>
+
+    <section class="cta-section reveal">
+        <h2 style="font-size: 3.5rem;">Experience the Studio.</h2>
+        <p style="font-size: 1.2rem; color: var(--text-muted); font-weight: 300; max-width: 600px; margin: 0 auto 40px;">Stop staring at a blank page. Meet the first interactive creative director built to learn your voice and build your next campaign.</p>
+        <button class="primary-btn" onclick="window.location.href='campaign-builder.html'">Start Building Your Campaign</button>
     </section>
 
     <script>
-        // --- 1. PAGE ROUTING LOGIC ---
-        function togglePage(pageId) {
-            document.querySelectorAll('.page-section').forEach(section => section.classList.remove('active'));
-            document.getElementById(`${pageId}-page`).classList.add('active');
-            window.scrollTo({ top: 0, behavior: 'instant' });
+        const canvas = document.getElementById("hero-sequence");
+        const context = canvas.getContext("2d");
+        const track = document.getElementById("track");
+        const darkness = document.getElementById("darkness");
+        const text = document.getElementById("punchy-text");
+        const introText = document.getElementById("intro-question");
+
+        // 73 Frames matching your sequence exactly
+        const frameCount = 73; 
+        const currentFrame = index => `hero-frames/frame${String(index + 1).padStart(2, '0')}.jpg`; 
+        
+        const images = [];
+        const imageObj = new Image();
+
+        imageObj.src = currentFrame(0);
+        imageObj.onload = () => context.drawImage(imageObj, 0, 0, canvas.width, canvas.height);
+
+        for (let i = 0; i < frameCount; i++) {
+            const img = new Image();
+            img.src = currentFrame(i);
+            images.push(img);
         }
 
-        // --- 2. SCROLL REVEAL ANIMATION (Intersection Observer) ---
-        // This watches elements and fades them in when they enter the screen
-        const observerOptions = { root: null, rootMargin: '0px', threshold: 0.15 };
-        const observer = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('active');
-                }
-            });
-        }, observerOptions);
-
-        document.querySelectorAll('.reveal').forEach(el => {
-            observer.observe(el);
-        });
-
-        // --- 3. HERO PARALLAX LOGIC ---
-        // Pushes the background video down slightly as you scroll up
         window.addEventListener('scroll', () => {
-            const scrollPos = window.scrollY;
-            const heroVideo = document.getElementById('parallax-video');
-            if(heroVideo && scrollPos < window.innerHeight) {
-                heroVideo.style.transform = `translateY(${scrollPos * 0.4}px)`;
+            const scrollTop = document.documentElement.scrollTop;
+            const maxScroll = track.scrollHeight - window.innerHeight;
+            const scroll = Math.max(0, Math.min(1, scrollTop / maxScroll)); 
+
+            requestAnimationFrame(() => {
+                const frameIndex = Math.min(frameCount - 1, Math.floor(scroll * frameCount));
+                if(images[frameIndex]) context.drawImage(images[frameIndex], 0, 0, canvas.width, canvas.height);
+            });
+
+            if (scroll < 0.2) {
+                introText.style.opacity = 1 - (scroll / 0.15); 
+                introText.style.transform = `translateY(${scroll * -100}px) scale(${1 + scroll})`; 
+            } else {
+                introText.style.opacity = 0;
+            }
+
+            if (scroll > 0.4) {
+                const fadeScroll = (scroll - 0.4) / 0.6; 
+                darkness.style.opacity = Math.min(1, fadeScroll * 1.5);
+            } else {
+                darkness.style.opacity = 0;
+            }
+
+            if (scroll > 0.5) {
+                const textScroll = (scroll - 0.5) / 0.5;
+                text.style.opacity = Math.min(1, textScroll * 2);
+                text.style.transform = `translateY(${30 - (Math.min(1, textScroll) * 30)}px)`; 
+            } else {
+                text.style.opacity = 0;
+                text.style.transform = `translateY(30px)`;
             }
         });
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('active'); });
+        }, { threshold: 0.15 });
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        function switchTab(tabId, element) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            element.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
     </script>
 </body>
 </html>

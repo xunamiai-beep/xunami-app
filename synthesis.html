@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xunami | Voice Synthesis Portal</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap');
+        :root { --bg-deep: #0B0F19; --text-main: #F8FAFC; --text-muted: #94A3B8; --glass-bg: rgba(255, 255, 255, 0.02); --glass-border: rgba(255, 255, 255, 0.06); --accent-glow: rgba(56, 189, 248, 0.12); --accent-glow-2: rgba(139, 92, 246, 0.12); --accent: #38bdf8; --accent-gradient: linear-gradient(135deg, #38bdf8, #8b5cf6); --error: #ef4444; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-deep); color: var(--text-main); line-height: 1.6; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; background-image: radial-gradient(circle at 15% 30%, var(--accent-glow), transparent 40%), radial-gradient(circle at 85% 70%, var(--accent-glow-2), transparent 40%); background-attachment: fixed; overflow-x: hidden; }
+        
+        .top-back-btn { position: absolute; top: 30px; left: 40px; color: var(--text-muted); text-decoration: none; font-weight: 600; font-size: 1.1rem; transition: color 0.2s; z-index: 1000; }
+        .top-back-btn:hover { color: white; }
+
+        #login-screen { background: var(--glass-bg); backdrop-filter: blur(24px); border: 1px solid var(--glass-border); border-radius: 24px; padding: 60px 40px; text-align: center; max-width: 450px; width: 100%; box-shadow: 0 30px 60px rgba(0,0,0,0.5); transition: opacity 0.6s ease, transform 0.6s ease; }
+        #login-screen h2 { font-size: 2rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 10px; }
+        #login-screen p { color: var(--text-muted); margin-bottom: 30px; font-weight: 300; }
+        .passcode-input { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); padding: 18px; border-radius: 12px; color: white; font-size: 1.2rem; text-align: center; letter-spacing: 4px; outline: none; margin-bottom: 20px; text-transform: uppercase; transition: border-color 0.3s; }
+        .passcode-input:focus { border-color: var(--accent); }
+        .btn-submit { width: 100%; background: var(--text-main); color: #000; border: none; padding: 18px; font-size: 1.1rem; font-weight: 700; border-radius: 12px; cursor: pointer; transition: transform 0.2s, background 0.2s; }
+        .btn-submit:hover { transform: scale(1.02); background: #fff; }
+        #error-msg { color: var(--error); font-size: 0.9rem; margin-top: 15px; opacity: 0; transition: opacity 0.3s; }
+
+        #portal-screen { display: none; opacity: 0; width: 100%; max-width: 1200px; margin: 40px auto; transform: translateY(20px); transition: opacity 0.8s ease, transform 0.8s ease; }
+        .portal-header { text-align: center; margin-bottom: 50px; }
+        .portal-header h1 { font-size: 3.5rem; font-weight: 900; letter-spacing: -1.5px; margin-bottom: 10px; }
+        .portal-header p { color: var(--text-muted); font-size: 1.2rem; }
+        .portal-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 40px; }
+        .glass-box { background: var(--glass-bg); backdrop-filter: blur(24px); border: 1px solid var(--glass-border); border-radius: 24px; padding: 40px; }
+        .glass-box h3 { font-size: 1.5rem; margin-bottom: 20px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        .glass-box h3 span { background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .protocol-list { list-style: none; margin-bottom: 40px; }
+        .protocol-list li { margin-bottom: 20px; font-size: 1.05rem; display: flex; align-items: flex-start; gap: 15px; color: var(--text-muted); line-height: 1.5; }
+        .protocol-list strong { color: var(--text-main); display: block; margin-bottom: 5px; }
+        .step-number { background: rgba(255,255,255,0.1); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+        .teleprompter { background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); border-radius: 16px; padding: 30px; margin-top: 20px; max-height: 400px; overflow-y: auto; }
+        .teleprompter p { font-size: 1.2rem; line-height: 1.8; color: #E2E8F0; margin-bottom: 15px; }
+        .teleprompter .direction { color: var(--accent); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 5px; display: block; }
+        .dropzone { border: 2px dashed rgba(255,255,255,0.2); border-radius: 20px; height: 100%; min-height: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: rgba(0,0,0,0.2); transition: all 0.3s ease; cursor: pointer; }
+        .dropzone:hover { border-color: var(--accent); background: rgba(56, 189, 248, 0.05); }
+        .dropzone-icon { font-size: 3rem; margin-bottom: 15px; }
+        .dropzone h4 { font-size: 1.5rem; margin-bottom: 10px; font-weight: 600; }
+        .dropzone p { color: var(--text-muted); font-size: 1rem; max-width: 250px; }
+        @media (max-width: 900px) { .portal-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" class="top-back-btn">← Back to Storefront</a>
+
+    <div id="login-screen">
+        <h2>Authorized Access</h2>
+        <p>Enter your VIP passcode to initialize your digital voice profile.</p>
+        <input type="password" id="passcode" class="passcode-input" placeholder="••••••••" onkeypress="if(event.key === 'Enter') unlockPortal()">
+        <button class="btn-submit" onclick="unlockPortal()">Unlock Terminal</button>
+        <div id="error-msg">Incorrect Passcode. Try again.</div>
+    </div>
+
+    <div id="portal-screen">
+        <div class="portal-header">
+            <h1>Synthesis Setup</h1>
+            <p>Read the protocol. Record your sample. Drop the file.</p>
+        </div>
+        <div class="portal-grid">
+            <div class="glass-box">
+                <h3><span>01.</span> Studio Protocol</h3>
+                <ul class="protocol-list">
+                    <li><div class="step-number">1</div> <div><strong>The Environment</strong> Record in a quiet, padded space like a walk-in closet or a parked car. Do not record in an empty office or kitchen. Echo is the enemy of AI.</div></li>
+                    <li><div class="step-number">2</div> <div><strong>The Hardware</strong> Use the "Voice Memos" app on your iPhone. Hold the phone normally against your ear like a phone call. <em>Absolutely no AirPods or Bluetooth headsets.</em></div></li>
+                    <li><div class="step-number">3</div> <div><strong>The Delivery</strong> Read the teleprompter script below exactly how you would speak to a high-end client across the table. Take natural breaths. Don't force a "radio voice."</div></li>
+                </ul>
+
+                <h3><span>02.</span> Teleprompter Script</h3>
+                <div class="teleprompter">
+                    <span class="direction">[Energetic & Welcoming]</span>
+                    <p>Hey there, this is just a quick audio sample to train my digital voice clone. I want this to sound exactly like me on my best day—professional, engaging, but completely authentic.</p>
+                    <span class="direction">[Serious & Authoritative]</span>
+                    <p>Over the last twelve months, we've seen a massive shift in the market. Inventory is tightening, interest rates are fluctuating, and buyers are becoming incredibly strategic. You need an expert in your corner to navigate this.</p>
+                    <span class="direction">[Warm & Conversational]</span>
+                    <p>So, whether you're looking to buy your first home, sell a luxury estate, or just grab a coffee and talk about the neighborhood, I'm here to help. Reach out anytime. I'd love to connect.</p>
+                </div>
+            </div>
+            <div class="glass-box" style="display: flex; flex-direction: column;">
+                <h3 style="margin-bottom: 20px;"><span>03.</span> Secure Upload</h3>
+                <p style="color: var(--text-muted); margin-bottom: 30px;">Once you've finished recording, drag your <strong>.m4a</strong> or <strong>.wav</strong> file into the dropzone below to initialize your digital twin.</p>
+                <div class="dropzone">
+                    <div class="dropzone-icon">🎙️</div>
+                    <h4>Drop Audio File</h4>
+                    <p>or click to browse your device.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function unlockPortal() {
+            const input = document.getElementById('passcode').value;
+            const errorMsg = document.getElementById('error-msg');
+            const loginScreen = document.getElementById('login-screen');
+            const portalScreen = document.getElementById('portal-screen');
+
+            // VIP Passcode!
+            if (input.toUpperCase() === 'VIP2026') {
+                loginScreen.style.opacity = '0';
+                loginScreen.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    loginScreen.style.display = 'none';
+                    portalScreen.style.display = 'block';
+                    setTimeout(() => {
+                        portalScreen.style.opacity = '1';
+                        portalScreen.style.transform = 'translateY(0)';
+                    }, 50);
+                }, 600);
+            } else {
+                errorMsg.style.opacity = '1';
+                setTimeout(() => { errorMsg.style.opacity = '0'; }, 3000);
+            }
+        }
+    </script>
+</body>
+</html>
