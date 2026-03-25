@@ -13,7 +13,7 @@ exports.handler = async function(event, context) {
     }
 
     // 2. The EXACT endpoint for the 1.5 Flash model
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
     
     // 3. Package the conversation
     const contents = [...history, { role: "user", parts: [{ text: userMessage }] }];
